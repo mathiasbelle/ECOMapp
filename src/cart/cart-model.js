@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const userSchema = new mongoose.Schema({
+const cartSchema = new mongoose.Schema({
     owner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
@@ -25,4 +25,4 @@ const userSchema = new mongoose.Schema({
     }
 }, {timestamps: true});
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model('Cart', cartSchema);

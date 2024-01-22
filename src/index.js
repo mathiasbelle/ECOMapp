@@ -2,8 +2,10 @@ require('dotenv').config()
 const morgan = require("morgan");
 const express = require("express");
 const dbConnect = require("./../config/db");
-const userRoutes = require("./routes/user-routes");
-const authRoutes = require('./routes/auth-routes');
+const userRoutes = require("./user/user-routes");
+const authRoutes = require('./auth/auth-routes');
+const productRoutes = require('./product/product-routes');
+const cartRoutes = require('./cart/cart-routes');
 
 const app = express();
 app.use(express.json());
@@ -17,6 +19,8 @@ app.use(morgan("dev"));
 
 app.use(userRoutes);
 app.use(authRoutes);
+app.use(productRoutes);
+app.use(cartRoutes);
 
 
 app.get('/', (req, res) => {
