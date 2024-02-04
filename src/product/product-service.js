@@ -1,9 +1,9 @@
 const Product = require('./product-model');
 
 exports.create = async (data) => {
-    console.log(data);
+    // console.log(data);
     const product = new Product({
-        owner: data.id,
+        owner: data.owner,
         name: data.name,
         price: Number(data.price),
         quantity: Number(data.quantity),
@@ -17,37 +17,80 @@ exports.create = async (data) => {
         await product.save();
         return product;
     } catch (error) {
-        console.log('Error when saving new product');
-        console.log(error);
-        return false;
+        throw new Error('Could not create new product.');
     }
 }
 
 exports.getOne = async (id) => {
-    return await Product.findById(id);
+    await this.exists(id);
+    try {
+        const product = await Product.findById(id);
+        console.log(product);
+        if (product) {
+            return product;    
+        } else {
+            throw new Error('Could not find product.');
+        }
+    } catch (error) {
+        throw new Error('Could not find product.');
+    }
+    
 }
 
 exports.getAll = async () => {
-    return await Product.find();
+    try {
+        const product = await Product.find();
+        return product;
+    } catch (error) {
+        throw new Error('Error when getting products.')
+    }
 
 }
 
-exports.updatePartial = async (id, data) => {
-    delete data.owner;
+exports.updatePartial = async (id, {name, price, quantity, category, description}) => {
 
+    await this.exists(id);
+
+    let dataToUpdate = {};
+    if (name) {
+        dataToUpdate.name = name;
+    }
+    if (price) {
+        dataToUpdate.price = price;
+    }
+    if (quantity) {
+        dataToUpdate.quantity = quantity;
+    }
+    if (category) {
+        dataToUpdate.category = category;
+    }
+    if (description) {
+        dataToUpdate.description = description;
+    }
+
+    try {
+        const product = Product.findByIdAndUpdate(id, dataToUpdate, {
+            new: true,
+        });
+        return product;        
+    } catch (error) {
+        throw new Error('Error when updating product.')
+    }
 }
 
 exports.delete = async (id) => {
-    console.log(id);
+    await this.exists();
     try {
         const product = Product.findByIdAndDelete(id);
-        if ( !product ) {
-            return false;
-        } else {
-            return product;
-        }
+        return product;
     } catch (error) {
-        return false;
+        return Error('Error when deleting product.');
+    }
+}
+
+exports.exists = async (id) => {
+    if ( !( await Product.exists({_id: id}))) {
+        throw new Error('Product does not exist.');
     }
 }
 

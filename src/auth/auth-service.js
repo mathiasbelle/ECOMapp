@@ -24,47 +24,26 @@ function createToken(user) {
 }
 
 exports.login = async (email, password) => {
-    const user = await User.findOne({email: email}).exec();
-    console.log(user);
+    try {
+        const user = await User.findOne({ email: email }).exec();
+        console.log(user);
 
-    if (!user) {
-        return false;
-
-    } else if (!(bcrypt.compare(password, user.password))) {
-        return false;
-
-    } else {
-        return createToken(user);
-    }   
+        if (!user || !bcrypt.compare(password, user.password)) {
+            throw new Error('Email or password incorrect.');
+        } else {
+            return createToken(user);
+        }
+    } catch (error) {
+        throw new Error('Email or password incorrect.');
+    }
+    
 }
 
 exports.register = async (data) => {
-    // if ( await User.exists({email}) ) {
-    //     return false;
-    // }
-    // password = await bcrypt.hash(password, 10);
-    // const newUser = new User({
-    //     name: name,
-    //     email: email,
-    //     password: password
-    // });
-    // // console.log(newUser);
-
-    // try {
-    //     await newUser.save();
-    //     console.log(newUser);
-    //     return newUser;
-    // } catch (error) {
-    //     console.log('Error when saving new user.');
-    //     console.log(error);
-    //     return false;
-    // }
-    const user = await userService.create(data);
-    if (!user) {
-        return false;
+    try {
+        const user = await userService.create(data);    
+        return createToken(user);
+    } catch (error) {
+        throw new Error('Could not create new user.');
     }
-
-    return createToken(user);
-
-    
 }

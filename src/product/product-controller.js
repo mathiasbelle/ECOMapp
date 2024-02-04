@@ -1,56 +1,77 @@
 const productService = require('./product-service');
+const { matchedData, validationResult } = require('express-validator');
 
-exports.create = async (req, res) => {
-    const data = {
-        id: req.user._id,
-        name: req.body.name,
-        price: req.body.price,
-        quantity: req.body.quantity,
-        category: req.body.category,
-        description: req.body.description
-    };
-
-    const product = await productService.create(data);
-
-    if ( !product ) {
-        res.status(500).send({'error': 'Could not create new product.'});
+exports.create = async (req, res, next) => {
+    const result = validationResult(req);
+    if (result.isEmpty()) {
+        const data = matchedData(req);
+        console.log(data);
+        try {
+            const product = await productService.create(data);
+            res.send(product);
+        } catch (error) {
+            next(error);
+        }
     } else {
-        res.send(product);
+        res.send(result.array({onlyFirstError: true}));
     }
-
 }
 
-exports.getOne = async (req, res) => {
-    const id = req.params.id;
-    const product = await productService.getOne(id);
-    if ( !product ) {
-        res.status(404).send({'error': 'Could not find product'});
+exports.getOne = async (req, res, next) => {
+    const result = validationResult(req);
+    if (result.isEmpty()) {
+        const id = req.params.id;
+        try {
+            const product = await productService.getOne(id);
+            res.send(product);
+        } catch (error) {
+            error.status = 404;
+            next(error);
+        }
     } else {
-        res.send(product);
+        res.status(404).send({error: 'Product not found.'});
     }
-    
 }
 
-exports.getAll = async (req, res) => {
-
-    res.send(await productService.getAll());
-    
+exports.getAll = async (req, res, next) => {
+    try {
+        res.send(await productService.getAll());
+    } catch (error) {
+        next(error);
+    }
 }
 
 exports.update = async (req, res) => {
     
 }
 
-exports.updatePartial = async (req, res) => {
-    
+exports.updatePartial = async (req, res, error) => {
+    const result = validationResult(req);
+    if (result.isEmpty()) {
+        const id = req.params.id;
+        const data = matchedData(req);
+        try {
+            const product = await productService.updatePartial(id, data);
+            res.send(product);
+        } catch (error) {
+            next(error)
+        }
+    } else {
+        res.send(result.array({onlyFirstError: true}));
+    }
 }
 
-exports.delete = async (req, res) => {
-    const id = req.params.id;
-    const product = await productService.delete(id);
-    if ( !product ) {
-        res.status(404).send({'error': 'Product not  found'});
+exports.delete = async (req, res, next) => {
+    const result = validationResult(req);
+    if (result.isEmpty()) {
+        const id = req.params.id;
+        try {
+            const product = await productService.delete(id);
+            res.send(true);
+        } catch (error) {
+            next(error);
+        }
     } else {
-        res.send(product);
+        res.send({error: 'Product ID not found.'})
     }
 }

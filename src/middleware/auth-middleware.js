@@ -3,7 +3,7 @@ const userService = require('../user/user-service');
 
 exports.authenticateToken = async (req, res, next) => {
     const {authorization} = req.headers;
-    console.log(authorization);
+    //console.log(authorization);
 
     const token = (authorization ?? '').split(' ')[1];
 
@@ -12,10 +12,10 @@ exports.authenticateToken = async (req, res, next) => {
             audience: 'users',
             issuer: 'login'
         });
-        console.log(result);
+        //console.log(result);
         req.tokenPayload = result;
         req.user = await userService.getOne(result.id);
-        console.log(req.user);
+        //console.log(req.user);
         next();
 
     } catch (error) {

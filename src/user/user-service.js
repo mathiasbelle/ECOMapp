@@ -6,51 +6,67 @@ exports.create = async (data) => {
     if (
         await User.exists({email: data.email})
     ) {
-        console.log('false');
-        return false;
+        throw new Error('User already exists.');
     }
     data.password = await bcrypt.hash(data.password, 10);
-    const newUser = new User({
-        name: data.name,
-        email: data.email,
-        password: data.password
-    });
-     console.log(newUser);
-
     try {
+        const newUser = new User({
+            name: data.name,
+            email: data.email,
+            password: data.password
+        });
+        console.log(newUser);
+
         await newUser.save();
         console.log(newUser);
         return newUser;
     } catch (error) {
-        console.log('Error when saving new user.');
-        console.log(error);
-        return false;
+        throw new Error('Error when saving new user.');
     }
     
 
 };
 
 exports.getOne = async (id) => {
-    const user = await User.findById(id);
+    try {
+        const user = await User.findById(id);
+        if (user) {
+            return user;
+        } else {
+            throw new Error('User not found.');
+        }
+    } catch (error) {
+        throw new Error('User not found.');
+    }
     
-    return user;
 
 };
 
 exports.getAll = async () => {
-    const users = await User.find();
-    return users;
+    try {
+        const users = await User.find();
+        return users;
+    } catch (error) {
+        throw new Error('Error when finding users.');
+    }
     
 };
 
 exports.update = async (id, data) => {
-    // console.log(id);
-    const user = await User.updateOne({id}, {
-        name: data.name,
-        email: data.email,
-        password: data.password,
-    })
-    return user;
+    try {
+    } catch (error) {
+        const user = await User.findByIdAndUpdate(id, {
+            name: data.name,
+            email: data.email,
+            password: data.password,
+        }, {new: true});
+        if (user) {
+            return user;
+        } else {
+            throw new Error('User not found.');
+        }        
+    }
+    
 
 };
 
@@ -59,7 +75,20 @@ exports.updatePartial = async (req, res) => {
 };
 
 exports.delete = async (id) => {
-    await User.deleteOne({_id: id});
-    return true;
+    if (
+        await User.exists(id)
+    ) {
+        throw new Error('User not found.');
+    } else {
+        try {
+            await User.findByIdAndDelete(id);
+            return true;
+        } catch (error) {
+            throw new Error('Error when deleting user');
+        }
+        
+    }
+
+    
 
 };
