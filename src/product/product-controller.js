@@ -23,7 +23,7 @@ exports.getOne = async (req, res, next) => {
         const id = req.params.id;
         try {
             const product = await productService.getOne(id);
-            res.send(product);
+            res.json(product);
         } catch (error) {
             error.status = 404;
             next(error);
@@ -45,7 +45,7 @@ exports.update = async (req, res) => {
     
 }
 
-exports.updatePartial = async (req, res, error) => {
+exports.updatePartial = async (req, res, next) => {
     const result = validationResult(req);
     if (result.isEmpty()) {
         const id = req.params.id;
@@ -54,7 +54,7 @@ exports.updatePartial = async (req, res, error) => {
             const product = await productService.updatePartial(id, data);
             res.send(product);
         } catch (error) {
-            next(error)
+            next(error);
         }
     } else {
         res.send(result.array({onlyFirstError: true}));
@@ -66,8 +66,8 @@ exports.delete = async (req, res, next) => {
     if (result.isEmpty()) {
         const id = req.params.id;
         try {
-            const product = await productService.delete(id);
-            res.send(true);
+            await productService.delete(id);
+            res.sendStatus(204);
         } catch (error) {
             next(error);
         }

@@ -1,3 +1,4 @@
+const notFoundError = require('../errors/not-found-error');
 const Product = require('./product-model');
 
 exports.create = async (data) => {
@@ -9,7 +10,6 @@ exports.create = async (data) => {
         quantity: Number(data.quantity),
         category: data.category,
         description: data.description,
-        
     });
     console.log(product);
 
@@ -25,12 +25,8 @@ exports.getOne = async (id) => {
     await this.exists(id);
     try {
         const product = await Product.findById(id);
-        console.log(product);
-        if (product) {
-            return product;    
-        } else {
-            throw new Error('Could not find product.');
-        }
+        //console.log(product);
+        return product;    
     } catch (error) {
         throw new Error('Could not find product.');
     }
@@ -89,8 +85,8 @@ exports.delete = async (id) => {
 }
 
 exports.exists = async (id) => {
-    if ( !( await Product.exists({_id: id}))) {
-        throw new Error('Product does not exist.');
+    if (!(await Product.exists(id))) {
+        throw notFoundError('Product does not exist.');
     }
 }
 

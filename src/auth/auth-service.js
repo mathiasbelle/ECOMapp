@@ -1,4 +1,3 @@
-const express = require('express');
 const jwt = require('jsonwebtoken');
 const userService = require('../user/user-service');
 const bcrypt = require('bcrypt');
@@ -29,12 +28,14 @@ exports.login = async (email, password) => {
         console.log(user);
 
         if (!user || !bcrypt.compare(password, user.password)) {
-            throw new Error('Email or password incorrect.');
+            const error = new Error('Email or password incorrect.');
+            error.status = 401;
+            throw error;
         } else {
             return createToken(user);
         }
     } catch (error) {
-        throw new Error('Email or password incorrect.');
+        throw new Error('Error when logging in.');
     }
     
 }

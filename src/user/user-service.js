@@ -1,11 +1,9 @@
+const notFoundError = require('../errors/not-found-error');
 const User = require('./user-model');
 const bcrypt = require('bcrypt');
-// TODO
 
 exports.create = async (data) => {
-    if (
-        await User.exists({email: data.email})
-    ) {
+    if (await User.exists({email: data.email})) {
         throw new Error('User already exists.');
     }
     data.password = await bcrypt.hash(data.password, 10);
@@ -18,7 +16,6 @@ exports.create = async (data) => {
         console.log(newUser);
 
         await newUser.save();
-        console.log(newUser);
         return newUser;
     } catch (error) {
         throw new Error('Error when saving new user.');
@@ -28,15 +25,12 @@ exports.create = async (data) => {
 };
 
 exports.getOne = async (id) => {
+    await this.exists();
     try {
-        const user = await User.findById(id);
-        if (user) {
-            return user;
-        } else {
-            throw new Error('User not found.');
-        }
+        const user = await User.findById(id, '-password -__v');
+        return user;
     } catch (error) {
-        throw new Error('User not found.');
+        throw new Error('Error when getting user');
     }
     
 
@@ -44,7 +38,7 @@ exports.getOne = async (id) => {
 
 exports.getAll = async () => {
     try {
-        const users = await User.find();
+        const users = await User.find({}, '-password -__v');
         return users;
     } catch (error) {
         throw new Error('Error when finding users.');
@@ -53,18 +47,16 @@ exports.getAll = async () => {
 };
 
 exports.update = async (id, data) => {
+    await this.exists(id);
     try {
-    } catch (error) {
         const user = await User.findByIdAndUpdate(id, {
             name: data.name,
             email: data.email,
             password: data.password,
         }, {new: true});
-        if (user) {
-            return user;
-        } else {
-            throw new Error('User not found.');
-        }        
+        return user; 
+    } catch (error) {
+        throw new Error('Error when updating user.')
     }
     
 
@@ -75,10 +67,8 @@ exports.updatePartial = async (req, res) => {
 };
 
 exports.delete = async (id) => {
-    if (
-        await User.exists(id)
-    ) {
-        throw new Error('User not found.');
+    if (await User.exists(id)) {
+        throw notFoundError('User not found.');
     } else {
         try {
             await User.findByIdAndDelete(id);
@@ -88,7 +78,13 @@ exports.delete = async (id) => {
         }
         
     }
-
-    
-
 };
+
+
+exports.exists = async (id) => {
+    if (await User.exists(id)) {
+        return true;
+    } else {
+        throw notFoundError('User not found');
+    }
+}
