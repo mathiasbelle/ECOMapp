@@ -1,5 +1,6 @@
 const Cart = require('./cart-model');
 const Product = require('../product/product-model');
+const notFoundError = require('../errors/not-found-error');
 
 exports.get = async (id) => {
     try {
@@ -7,7 +8,7 @@ exports.get = async (id) => {
         if (cart && cart.products.length > 0) {
             return cart;
         } else {
-            throw new Error('Cart not found');
+            throw notFoundError('Cart not found');
         }
     } catch (error) {
         throw new Error('Error when getting cart');
@@ -18,9 +19,10 @@ exports.create = async (data) => {
     try {
         const product = await Product.findById(data.productId);
         if (!product) {
-            const error = new Error('Product does not exist.');
-            error.status = 404;
-            throw error;
+            throw notFoundError('Product does not exist.');
+        }
+        if (product.quantity < data.quantity) {
+            throw new Error('Product is sold out.');
         }
         let cart = await Cart.findOne({ owner: data.user.id });
         console.log(cart);
@@ -35,13 +37,16 @@ exports.create = async (data) => {
                 bill: product.price * data.quantity
             });
             await newCart.save();
+            product.quantity -= data.quantity;
+            await product.save();
             return newCart;
         } else {
             return await this.update(data);
         }
     } catch (error) {
-        error.message = 'Error when creating cart.';
+        error.message ||= 'Error when creating cart.';
         error.status = 400;
+        throw error;
     }
 }
 
@@ -51,6 +56,9 @@ exports.update = async (data) => {
 
         if (!product){
              throw new Error('Product does not exist.');
+        }
+        if (product.quantity < data.quantity) {
+            throw new Error('Product is sold out.');
         }
 
         const cart = await Cart.findOne({owner: data.user.id});
@@ -84,22 +92,46 @@ exports.update = async (data) => {
         //     }
         // }, {new: true});
         await cart.save();
+        product.quantity -= data.quantity;
+        await product.save();
         console.log(cart);
         return cart;
     } catch (error) {
         console.log(error);
-        throw new Error('Error when updating cart.');
+        error.message ||= 'Error when updating cart.'; 
+        throw error;
     }
 }
 
-exports.delete = async (id) => {
+exports.delete = async (ownerId) => {
     try {
-        const cart = await Cart.findByIdAndDelete(id);
+        const cart = await Cart.findOneAndDelete({owner: ownerId});
         console.log(cart);
         return cart;
     } catch (error) {
         console.log(error);
         return false;
         
+    }
+}
+
+exports.deleteProduct = async (userId, productId) => {
+    try {
+        const cart = await Cart.findOne({owner: userId});
+        console.log(cart.products[0].productId.toString() == productId);
+
+        const index = cart.products.findIndex((product) => product.productId.toString() == productId);
+        if (index > -1) {
+            cart.bill -= cart.products[index].price * cart.products[index].quantity;
+            cart.products.splice(index, 1);
+            console.log(cart.products);
+            await cart.save();
+            return cart;
+        } else {
+            throw notFoundError('Product not in cart');
+        }
+    } catch (error) {
+        error.message ||= 'Error when deleting product from cart.'
+        throw error;
     }
 }

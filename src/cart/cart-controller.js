@@ -19,9 +19,10 @@ exports.create = async (req, res, next) => {
 
 exports.get = async (req, res, next) => {
     const id = req.user.id;
+    console.log(id);
     try {
-        const cart = cartService.get(id);
-        res.send(cart);
+        const cart = await cartService.get(id);
+        res.json(cart);
     } catch (error) {
         next(error);
     }
@@ -35,7 +36,7 @@ exports.update = async (req, res, next) => {
         data.user = req.user;
         try {
             const cart = await cartService.update(data);
-            return cart;            
+            res.json(cart);            
         } catch (error) {
             next(error);
         }
@@ -45,15 +46,31 @@ exports.update = async (req, res, next) => {
 }
 
 exports.delete = async (req, res, next) => {
-    const result = validationResult();
-    if (result) {
-        const id = req.params.id;
+    //const result = validationResult(req);
+    //if (result) {
+        //const id = req.params.id;
         try {
-            const cart = await cartService.delete(id);
-            return cart;
+            await cartService.delete(req.user.id);
+            return res.sendStatus(204);
         } catch (error) {
             next(error);
         }        
+    //} else {
+        //res.status(400).send({error: 'Error when deleting cart'});
+    //}
+}
+
+exports.deleteProduct = async (req, res, next) => {
+    const result = validationResult(req);
+    if (result.isEmpty()) {
+        const productId = req.params.id;
+        try {
+            const cart = await cartService.deleteProduct(req.user.id, productId);
+            console.log(cart);
+            res.json(cart);
+        } catch (error) {
+            next(error);
+        }
     } else {
         res.status(400).send({error: 'Error when deleting cart'});
     }
