@@ -1,9 +1,7 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
 const userController = require('./../user/user-controller');
 const {body, param} = require('express-validator');
-const mongoose = require("mongoose");
-
 
 router.post(
     '/users',
@@ -13,7 +11,7 @@ router.post(
     userController.create
 );
 
-router.get("/users", userController.getAll);
+router.get('/users', userController.getAll);
 
 router.get(
     '/users/:id',

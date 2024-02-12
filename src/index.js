@@ -1,8 +1,8 @@
 require('dotenv').config()
-const morgan = require("morgan");
-const express = require("express");
-const dbConnect = require("./../config/db");
-const userRoutes = require("./user/user-routes");
+const morgan = require('morgan');
+const express = require('express');
+const dbConnect = require('./../config/db');
+const userRoutes = require('./user/user-routes');
 const authRoutes = require('./auth/auth-routes');
 const productRoutes = require('./product/product-routes');
 const cartRoutes = require('./cart/cart-routes');
@@ -15,7 +15,7 @@ app.use(express.urlencoded({extended: true}))
 
 dbConnect();
 
-app.use(morgan("dev"));
+app.use(morgan('dev'));
 
 
 app.use(userRoutes);
