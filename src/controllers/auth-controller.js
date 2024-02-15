@@ -1,4 +1,4 @@
-const authService = require('./auth-service');
+const authService = require('../services/auth-service');
 const { validationResult, matchedData } = require('express-validator');
 
 exports.login = async (req, res, next) => {

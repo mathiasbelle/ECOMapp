@@ -1,5 +1,5 @@
 const notFoundError = require('../errors/not-found-error');
-const User = require('./user-model');
+const User = require('../models/user-model');
 const bcrypt = require('bcrypt');
 
 exports.create = async (data) => {

@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
-const userService = require('../user/user-service');
+const userService = require('./user-service');
 const bcrypt = require('bcrypt');
-const User = require('../user/user-model');
+const User = require('../models/user-model');
 
 function createToken(user) {
     return {

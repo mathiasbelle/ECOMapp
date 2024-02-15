@@ -1,5 +1,5 @@
 const notFoundError = require('../errors/not-found-error');
-const Product = require('./product-model');
+const Product = require('../models/product-model');
 
 exports.create = async (data) => {
     // console.log(data);

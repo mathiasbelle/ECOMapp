@@ -1,7 +1,7 @@
-const productService = require('./product-service');
+const productService = require('../services/product-service');
 const { matchedData, validationResult } = require('express-validator');
 
-exports.create = async (req, res, next) => {
+exports.createProduct = async (req, res, next) => {
     const result = validationResult(req);
     if (result.isEmpty()) {
         const data = matchedData(req);
@@ -17,7 +17,7 @@ exports.create = async (req, res, next) => {
     }
 }
 
-exports.getOne = async (req, res, next) => {
+exports.getOneProduct = async (req, res, next) => {
     const result = validationResult(req);
     if (result.isEmpty()) {
         const id = req.params.id;
@@ -33,7 +33,7 @@ exports.getOne = async (req, res, next) => {
     }
 }
 
-exports.getAll = async (req, res, next) => {
+exports.getAllProducts = async (req, res, next) => {
     try {
         res.send(await productService.getAll());
     } catch (error) {
@@ -41,11 +41,11 @@ exports.getAll = async (req, res, next) => {
     }
 }
 
-exports.update = async (req, res) => {
+exports.updateProduct = async (req, res) => {
     
 }
 
-exports.updatePartial = async (req, res, next) => {
+exports.updatePartialProduct = async (req, res, next) => {
     const result = validationResult(req);
     if (result.isEmpty()) {
         const id = req.params.id;
@@ -61,7 +61,7 @@ exports.updatePartial = async (req, res, next) => {
     }
 }
 
-exports.delete = async (req, res, next) => {
+exports.deleteProduct = async (req, res, next) => {
     const result = validationResult(req);
     if (result.isEmpty()) {
         const id = req.params.id;

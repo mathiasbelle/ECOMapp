@@ -1,23 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const authController = require('./auth-controller');
-const authenticateToken = require('../middleware/auth-middleware').authenticateToken;
+const {login, register, me} = require('../controllers/auth-controller');
+const {authenticateToken} = require('../middleware/auth-middleware');
 const { body } = require('express-validator');
 
 router.post(
     '/auth/login',
     body('email').trim().isEmail(),
     body('password').trim().notEmpty().escape(),
-    authController.login
+    login
 );
 router.post(
     '/auth/register',
     body('name').trim().notEmpty().escape(),
     body('email').trim().isEmail(),
     body('password').trim().notEmpty().escape(),
-    authController.register
+    register
 );
-router.post('/auth/me', authenticateToken, authController.me);
+router.post('/auth/me', authenticateToken, me);
 
 
 module.exports = router;

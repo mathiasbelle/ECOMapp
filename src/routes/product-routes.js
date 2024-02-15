@@ -2,9 +2,16 @@ const express = require('express');
 const router = express.Router();
 const { body, param } = require('express-validator');
 
-const authenticateToken = require('../middleware/auth-middleware').authenticateToken;
+const {authenticateToken} = require('../middleware/auth-middleware');
 const authenticateProductOwner = require('../middleware/product-owner-auth-middleware').authenticateProductOwner;
-const productController = require('../product/product-controller');
+const {
+    createProduct,
+    updatePartialProduct,
+    getOneProduct,
+    getAllProducts,
+    deleteProduct,
+    updateProduct,
+} = require('../controllers/product-controller');
 
 router.post(
     '/products',
@@ -15,15 +22,15 @@ router.post(
     body('category').trim().escape().notEmpty(),
     body('description').trim().escape(),
     authenticateToken,
-    productController.create
+    createProduct
 );
 router.get(
     '/products/:id',
     param('id').trim().escape().isMongoId(),
     authenticateToken,
-    productController.getOne
+    getOneProduct
 );
-router.get('/products', authenticateToken, productController.getAll );
+router.get('/products', authenticateToken, getAllProducts);
 router.put(
     '/products/:id',
     param('id').trim().escape().isMongoId(),
@@ -35,7 +42,7 @@ router.put(
     body('description').trim().escape(),
     authenticateToken,
     authenticateProductOwner,
-    productController.update
+    updateProduct
 );
 router.patch(
     '/products/:id',
@@ -48,14 +55,14 @@ router.patch(
     body('description').optional().trim().escape(),
     authenticateToken,
     authenticateProductOwner,
-    productController.updatePartial
+    updatePartialProduct
 );
 router.delete(
     '/products/:id',
     param('id').trim().escape().isMongoId(),
     authenticateToken,
     authenticateProductOwner,
-    productController.delete
+    deleteProduct
 );
 
 module.exports = router;

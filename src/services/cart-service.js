@@ -1,5 +1,5 @@
-const Cart = require('./cart-model');
-const Product = require('../product/product-model');
+const Cart = require('../models/cart-model');
+const Product = require('../models/product-model');
 const notFoundError = require('../errors/not-found-error');
 
 exports.get = async (id) => {

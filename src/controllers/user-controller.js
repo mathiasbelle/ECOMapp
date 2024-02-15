@@ -1,7 +1,7 @@
-const userService = require('./user-service')
+const userService = require('../services/user-service')
 const { matchedData, validationResult } = require('express-validator');
 
-exports.create = async (req, res, next) => {
+exports.createUser = async (req, res, next) => {
     const result = validationResult(req);
     //console.log(result);
     if ( result.isEmpty() ) {
@@ -18,7 +18,7 @@ exports.create = async (req, res, next) => {
     }
 };
 
-exports.getOne = async (req, res, next) => {
+exports.getOneUser = async (req, res, next) => {
     const result = validationResult(req);
     if (result.isEmpty()) {
         const id = req.params.id;
@@ -34,7 +34,7 @@ exports.getOne = async (req, res, next) => {
     }
 };
 
-exports.getAll = async (req, res, next) => {
+exports.getAllUsers = async (req, res, next) => {
     try {
         res.json(await userService.getAll());
     } catch (error) {
@@ -44,7 +44,7 @@ exports.getAll = async (req, res, next) => {
     
 };
 
-exports.update = async (req, res, next) => {
+exports.updateUser = async (req, res, next) => {
     const result = validationResult(req);
     //console.log(result);
     if ( result.isEmpty() ) {
@@ -62,11 +62,11 @@ exports.update = async (req, res, next) => {
 
 };
 
-exports.updatePartial = async (req, res) => {
+exports.updatePartialUser = async (req, res) => {
 
 };
 
-exports.delete = async (req, res, next) => {
+exports.deleteUser = async (req, res, next) => {
     const result = validationResult(req);
     if ( result.isEmpty() ) {
         const id = req.params.id;

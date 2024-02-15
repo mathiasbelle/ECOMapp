@@ -1,6 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const userController = require('./../user/user-controller');
+const {
+    createUser,
+    getOneUser,
+    getAllUsers,
+    updateUser,
+    updatePartialUser,
+    deleteUser,
+} = require('../controllers/user-controller');
 const {body, param} = require('express-validator');
 
 router.post(
@@ -8,15 +15,15 @@ router.post(
     body('name').trim().notEmpty().escape(),
     body('email').trim().isEmail(),
     body('password').trim().notEmpty().escape(),
-    userController.create
+    createUser
 );
 
-router.get('/users', userController.getAll);
+router.get('/users', getAllUsers);
 
 router.get(
     '/users/:id',
     param('id').isMongoId(),
-    userController.getOne
+    getOneUser
 );
 
 router.put(
@@ -25,7 +32,7 @@ router.put(
     body('name').trim().notEmpty().escape(),
     body('email').trim().isEmail(),
     body('password').trim().notEmpty().escape(),
-    userController.update
+    updateUser
 );
 
 router.patch(
@@ -34,9 +41,9 @@ router.patch(
     body('name').optional().trim().notEmpty().escape(),
     body('email').optional().trim().isEmail(),
     body('password').optional().trim().notEmpty().escape(),
-    userController.updatePartial
+    updatePartialUser
 );
 
-router.delete('/users/:id', param('id').isMongoId(), userController.delete);
+router.delete('/users/:id', param('id').isMongoId(), deleteUser);
 
 module.exports = router;

@@ -1,7 +1,7 @@
-const cartService = require('./cart-service');
+const cartService = require('../services/cart-service');
 const { validationResult, matchedData } = require('express-validator');
 
-exports.create = async (req, res, next) => {
+exports.createCart = async (req, res, next) => {
     const result = validationResult(req);
     if (result.isEmpty()) {
         const data = matchedData(req);
@@ -17,7 +17,7 @@ exports.create = async (req, res, next) => {
     }
 }
 
-exports.get = async (req, res, next) => {
+exports.getCart = async (req, res, next) => {
     const id = req.user.id;
     console.log(id);
     try {
@@ -29,7 +29,7 @@ exports.get = async (req, res, next) => {
 
 }
 
-exports.update = async (req, res, next) => {
+exports.updateCart = async (req, res, next) => {
     const result = validationResult(req);
     if (result.isEmpty()) {
         const data = matchedData(req);
@@ -45,7 +45,7 @@ exports.update = async (req, res, next) => {
     }
 }
 
-exports.delete = async (req, res, next) => {
+exports.deleteCart = async (req, res, next) => {
     //const result = validationResult(req);
     //if (result) {
         //const id = req.params.id;
@@ -60,7 +60,7 @@ exports.delete = async (req, res, next) => {
     //}
 }
 
-exports.deleteProduct = async (req, res, next) => {
+exports.deleteProductInCart = async (req, res, next) => {
     const result = validationResult(req);
     if (result.isEmpty()) {
         const productId = req.params.id;

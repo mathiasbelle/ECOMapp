@@ -1,4 +1,4 @@
-const Product = require('../product/product-model');
+const Product = require('../models/product-model');
 
 exports.authenticateProductOwner = async (req, res, next) => {
     const productId = req.params.id;

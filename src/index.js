@@ -2,10 +2,10 @@ require('dotenv').config()
 const morgan = require('morgan');
 const express = require('express');
 const dbConnect = require('./../config/db');
-const userRoutes = require('./user/user-routes');
-const authRoutes = require('./auth/auth-routes');
-const productRoutes = require('./product/product-routes');
-const cartRoutes = require('./cart/cart-routes');
+const userRoutes = require('./routes/user-routes');
+const authRoutes = require('./routes/auth-routes');
+const productRoutes = require('./routes/product-routes');
+const cartRoutes = require('./routes/cart-routes');
 const errorHandler = require('./middleware/error-middleware').errorHandler;
 
 const app = express();
