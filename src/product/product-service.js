@@ -43,29 +43,17 @@ exports.getAll = async () => {
 
 }
 
-exports.updatePartial = async (id, {name, price, quantity, category, description}) => {
-
+exports.updatePartial = async (id, data) => {
+    console.log(id);
     await this.exists(id);
-
     let dataToUpdate = {};
-    if (name) {
-        dataToUpdate.name = name;
+    for (let [key, value] of Object.entries(data)) {
+        if (value !== undefined) {
+            dataToUpdate[key] = value;
+        }
     }
-    if (price) {
-        dataToUpdate.price = price;
-    }
-    if (quantity) {
-        dataToUpdate.quantity = quantity;
-    }
-    if (category) {
-        dataToUpdate.category = category;
-    }
-    if (description) {
-        dataToUpdate.description = description;
-    }
-
     try {
-        const product = Product.findByIdAndUpdate(id, dataToUpdate, {
+        const product = await Product.findByIdAndUpdate(id, dataToUpdate, {
             new: true,
         });
         return product;        
@@ -85,7 +73,7 @@ exports.delete = async (id) => {
 }
 
 exports.exists = async (id) => {
-    if (!(await Product.exists(id))) {
+    if (!(await Product.exists({_id: id}))) {
         throw notFoundError('Product does not exist.');
     }
 }

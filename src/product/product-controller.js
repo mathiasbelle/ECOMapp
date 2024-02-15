@@ -49,7 +49,7 @@ exports.updatePartial = async (req, res, next) => {
     const result = validationResult(req);
     if (result.isEmpty()) {
         const id = req.params.id;
-        const data = matchedData(req);
+        const data = matchedData(req, {locations: ['body']});
         try {
             const product = await productService.updatePartial(id, data);
             res.send(product);
