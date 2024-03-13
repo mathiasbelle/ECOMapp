@@ -5,16 +5,15 @@ const {
     getOneUser,
     getAllUsers,
     updateUser,
-    updatePartialUser,
     deleteUser,
 } = require('../controllers/user-controller');
 const {body, param} = require('express-validator');
 
 router.post(
     '/users',
-    body('name').trim().notEmpty().escape(),
-    body('email').trim().isEmail(),
-    body('password').trim().notEmpty().escape(),
+    body('name', 'Name is required.').trim().notEmpty().escape(),
+    body('email', 'Invalid email').trim().isEmail(),
+    body('password', 'Invalid password').trim().notEmpty().escape(),
     createUser
 );
 
@@ -22,28 +21,28 @@ router.get('/users', getAllUsers);
 
 router.get(
     '/users/:id',
-    param('id').isMongoId(),
+    param('id', 'Invalid user id.').isMongoId(),
     getOneUser
 );
 
 router.put(
     '/users/:id',
-    param('id').isMongoId(),
-    body('name').trim().notEmpty().escape(),
-    body('email').trim().isEmail(),
-    body('password').trim().notEmpty().escape(),
+    param('id', 'Invalid user id.').isMongoId(),
+    body('name', 'Name is required.').trim().notEmpty().escape(),
+    body('email', 'Invalid email.').trim().isEmail(),
+    body('password', 'Invalid password.').trim().notEmpty().escape(),
     updateUser
 );
 
 router.patch(
     '/users/:id',
-    param('id').isMongoId(),
-    body('name').optional().trim().notEmpty().escape(),
-    body('email').optional().trim().isEmail(),
-    body('password').optional().trim().notEmpty().escape(),
-    updatePartialUser
+    param('id', 'Invalid user id.').isMongoId(),
+    body('name', 'Name is required.').optional().trim().notEmpty().escape(),
+    body('email', 'Invalid email.').optional().trim().isEmail(),
+    body('password', 'Invalid password.').optional().trim().notEmpty().escape(),
+    updateUser
 );
 
-router.delete('/users/:id', param('id').isMongoId(), deleteUser);
+router.delete('/users/:id', param('id', 'Invalid user id.').isMongoId(), deleteUser);
 
 module.exports = router;

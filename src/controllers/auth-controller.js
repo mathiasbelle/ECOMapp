@@ -13,7 +13,7 @@ exports.login = async (req, res, next) => {
             next(error);
         }
     } else {
-        res.status(401).send({error: 'Email or password incorrect.'});
+        res.status(401).json({error: result.array({onlyFirstError: true})});
     }  
 }
 
@@ -28,7 +28,7 @@ exports.register = async (req, res, next) => {
             next(error);
         }
     } else {
-        res.status(400).send({'error': 'Email is already in use.'});
+        res.status(400).json({error: result.array({onlyFirstError: true})});
     }
 }
 

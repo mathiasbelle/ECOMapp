@@ -7,13 +7,13 @@ exports.createProduct = async (req, res, next) => {
         const data = matchedData(req);
         console.log(data);
         try {
-            const product = await productService.create(data);
+            const product = await productService.createProduct(data);
             res.send(product);
         } catch (error) {
             next(error);
         }
     } else {
-        res.send(result.array({onlyFirstError: true}));
+        res.status(400).json({error: result.array({onlyFirstError: true})});
     }
 }
 
@@ -22,27 +22,23 @@ exports.getOneProduct = async (req, res, next) => {
     if (result.isEmpty()) {
         const id = req.params.id;
         try {
-            const product = await productService.getOne(id);
+            const product = await productService.getOneProduct(id);
             res.json(product);
         } catch (error) {
             error.status = 404;
             next(error);
         }
     } else {
-        res.status(404).send({error: 'Product not found.'});
+        res.status(404).json({error: result.array({onlyFirstError: true})});
     }
 }
 
 exports.getAllProducts = async (req, res, next) => {
     try {
-        res.send(await productService.getAll());
+        res.send(await productService.getAllProducts());
     } catch (error) {
         next(error);
     }
-}
-
-exports.updateProduct = async (req, res) => {
-    
 }
 
 exports.updatePartialProduct = async (req, res, next) => {
@@ -51,13 +47,13 @@ exports.updatePartialProduct = async (req, res, next) => {
         const id = req.params.id;
         const data = matchedData(req, {locations: ['body']});
         try {
-            const product = await productService.updatePartial(id, data);
+            const product = await productService.updatePartialProduct(id, data);
             res.send(product);
         } catch (error) {
             next(error);
         }
     } else {
-        res.send(result.array({onlyFirstError: true}));
+        res.status(400).json({error: result.array({onlyFirstError: true})});
     }
 }
 
@@ -66,12 +62,12 @@ exports.deleteProduct = async (req, res, next) => {
     if (result.isEmpty()) {
         const id = req.params.id;
         try {
-            await productService.delete(id);
+            await productService.deleteProduct(id);
             res.sendStatus(204);
         } catch (error) {
             next(error);
         }
     } else {
-        res.send({error: 'Product ID not found.'})
+        res.status(400).json({error: result.array({onlyFirstError: true})});
     }
 }

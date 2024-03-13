@@ -6,15 +6,15 @@ const { body } = require('express-validator');
 
 router.post(
     '/auth/login',
-    body('email').trim().isEmail(),
-    body('password').trim().notEmpty().escape(),
+    body('email', 'Invalid email').trim().isEmail(),
+    body('password', 'Invalid password').trim().notEmpty().escape(),
     login
 );
 router.post(
     '/auth/register',
-    body('name').trim().notEmpty().escape(),
-    body('email').trim().isEmail(),
-    body('password').trim().notEmpty().escape(),
+    body('name', 'Name is required.').trim().notEmpty().escape(),
+    body('email', 'Invalid email').trim().isEmail(),
+    body('password', 'Invalid password').trim().notEmpty().escape(),
     register
 );
 router.post('/auth/me', authenticateToken, me);

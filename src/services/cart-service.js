@@ -2,7 +2,7 @@ const Cart = require('../models/cart-model');
 const Product = require('../models/product-model');
 const notFoundError = require('../errors/not-found-error');
 
-exports.get = async (id) => {
+exports.getCart = async (id) => {
     try {
         const cart = await Cart.findOne({owner: id});
         if (cart && cart.products.length > 0) {
@@ -15,7 +15,7 @@ exports.get = async (id) => {
     }
 }
 
-exports.create = async (data) => {
+exports.createCart = async (data) => {
     try {
         const product = await Product.findById(data.productId);
         if (!product) {
@@ -50,7 +50,7 @@ exports.create = async (data) => {
     }
 }
 
-exports.update = async (data) => {
+exports.updateCart = async (data) => {
     try {
         const product = await Product.findById(data.productId);
 
@@ -103,7 +103,7 @@ exports.update = async (data) => {
     }
 }
 
-exports.delete = async (ownerId) => {
+exports.deleteCart = async (ownerId) => {
     try {
         const cart = await Cart.findOneAndDelete({owner: ownerId});
         console.log(cart);
@@ -115,7 +115,7 @@ exports.delete = async (ownerId) => {
     }
 }
 
-exports.deleteProduct = async (userId, productId) => {
+exports.deleteProductFromCat = async (userId, productId) => {
     try {
         const cart = await Cart.findOne({owner: userId});
         console.log(cart.products[0].productId.toString() == productId);

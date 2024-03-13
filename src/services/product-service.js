@@ -1,7 +1,7 @@
 const notFoundError = require('../errors/not-found-error');
 const Product = require('../models/product-model');
 
-exports.create = async (data) => {
+exports.createProduct = async (data) => {
     // console.log(data);
     const product = new Product({
         owner: data.owner,
@@ -21,10 +21,13 @@ exports.create = async (data) => {
     }
 }
 
-exports.getOne = async (id) => {
+exports.getOneProduct = async (id) => {
     await this.exists(id);
     try {
         const product = await Product.findById(id);
+        if (!product) {
+            throw new Error('Could not find product.');
+        }
         //console.log(product);
         return product;    
     } catch (error) {
@@ -33,7 +36,7 @@ exports.getOne = async (id) => {
     
 }
 
-exports.getAll = async () => {
+exports.getAllProducts = async () => {
     try {
         const product = await Product.find();
         return product;
@@ -43,12 +46,13 @@ exports.getAll = async () => {
 
 }
 
-exports.updatePartial = async (id, data) => {
+exports.updateProduct = async (id, data) => {
     console.log(id);
     await this.exists(id);
+    const updatableFields = ['name', 'price', 'quantity', 'category', 'description'];
     let dataToUpdate = {};
     for (let [key, value] of Object.entries(data)) {
-        if (value !== undefined) {
+        if (value !== undefined && updatableFields.includes(key)) {
             dataToUpdate[key] = value;
         }
     }
@@ -62,10 +66,12 @@ exports.updatePartial = async (id, data) => {
     }
 }
 
-exports.delete = async (id) => {
-    await this.exists();
+exports.deleteProduct = async (id) => {
     try {
         const product = Product.findByIdAndDelete(id);
+        if (!product) {
+            throw notFoundError('Product does not exist.');
+        }
         return product;
     } catch (error) {
         return Error('Error when deleting product.');
