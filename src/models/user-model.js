@@ -11,10 +11,11 @@ const userSchema = new mongoose.Schema({
         require: true,
         unique: true,
         lowercase: true,
-        validate(value) {
-            if ( !validator.isEmail(value) ) {
-                throw new Error('Invalid email.');
-            }
+        validate: {
+            validator: function(value) {
+                return validator.isEmail(value);
+            },
+            message: props => `${props.value} is not a valid email.`
         }
     },
     password: {

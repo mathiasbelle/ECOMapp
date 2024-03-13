@@ -18,10 +18,10 @@ dbConnect();
 app.use(morgan('dev'));
 
 
-app.use(userRoutes);
-app.use(authRoutes);
-app.use(productRoutes);
-app.use(cartRoutes);
+app.use('/api', userRoutes);
+app.use('/api', authRoutes);
+app.use('/api', productRoutes);
+app.use('/api', cartRoutes);
 
 app.use(errorHandler);
 
