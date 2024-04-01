@@ -5,6 +5,7 @@ const {
     getOneUser,
     getAllUsers,
     updateUser,
+    updatePartialUser,
     deleteUser,
 } = require('../controllers/user-controller');
 const {body, param} = require('express-validator');
@@ -29,7 +30,7 @@ router.put(
     '/users/:id',
     param('id', 'Invalid user id.').isMongoId(),
     body('name', 'Name is required.').trim().notEmpty().escape(),
-    body('email', 'Invalid email.').trim().isEmail(),
+    body('email', 'Invalid email.').trim().notEmpty().isEmail(),
     body('password', 'Invalid password.').trim().notEmpty().escape(),
     updateUser
 );
@@ -40,7 +41,7 @@ router.patch(
     body('name', 'Name is required.').optional().trim().notEmpty().escape(),
     body('email', 'Invalid email.').optional().trim().isEmail(),
     body('password', 'Invalid password.').optional().trim().notEmpty().escape(),
-    updateUser
+    updatePartialUser
 );
 
 router.delete('/users/:id', param('id', 'Invalid user id.').isMongoId(), deleteUser);

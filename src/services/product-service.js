@@ -2,7 +2,6 @@ const notFoundError = require('../errors/not-found-error');
 const Product = require('../models/product-model');
 
 exports.createProduct = async (data) => {
-    // console.log(data);
     const product = new Product({
         owner: data.owner,
         name: data.name,
@@ -11,7 +10,6 @@ exports.createProduct = async (data) => {
         category: data.category,
         description: data.description,
     });
-    console.log(product);
 
     try {
         await product.save();
@@ -22,13 +20,11 @@ exports.createProduct = async (data) => {
 }
 
 exports.getOneProduct = async (id) => {
-    await this.exists(id);
     try {
         const product = await Product.findById(id);
         if (!product) {
             throw new Error('Could not find product.');
         }
-        //console.log(product);
         return product;    
     } catch (error) {
         throw new Error('Could not find product.');
@@ -47,19 +43,21 @@ exports.getAllProducts = async () => {
 }
 
 exports.updateProduct = async (id, data) => {
-    console.log(id);
     await this.exists(id);
     const updatableFields = ['name', 'price', 'quantity', 'category', 'description'];
-    let dataToUpdate = {};
-    for (let [key, value] of Object.entries(data)) {
-        if (value !== undefined && updatableFields.includes(key)) {
-            dataToUpdate[key] = value;
-        }
-    }
+
     try {
-        const product = await Product.findByIdAndUpdate(id, dataToUpdate, {
-            new: true,
-        });
+        const product = await Product.findById(id);
+        if (!product) {
+            throw notFoundError('Product does not exist.');
+        }
+        for (let [key, value] of Object.entries(data)) {
+            if (value !== undefined && updatableFields.includes(key)) {
+                product[key] = value;
+            }
+        }
+        await product.save();
+
         return product;        
     } catch (error) {
         throw new Error('Error when updating product.')
@@ -80,7 +78,7 @@ exports.deleteProduct = async (id) => {
 
 exports.exists = async (id) => {
     if (!(await Product.exists({_id: id}))) {
-        throw notFoundError('Product does not exist.');
+        throw notFoundError('Could not find product.');
     }
 }
 

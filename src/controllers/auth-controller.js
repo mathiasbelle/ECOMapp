@@ -22,8 +22,8 @@ exports.register = async (req, res, next) => {
     if (result.isEmpty()) {
         const data = matchedData(req);
         try {
-            const user = await authService.register(data);
-            res.json(user);
+            const token = await authService.register(data);
+            res.json(token);
         } catch (error) {
             next(error);
         }

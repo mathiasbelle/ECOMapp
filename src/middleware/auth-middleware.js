@@ -14,12 +14,12 @@ exports.authenticateToken = async (req, res, next) => {
         });
         //console.log(result);
         req.tokenPayload = result;
-        req.user = await userService.getOne(result.id);
+        req.user = await userService.getOneUser(result.id);
         //console.log(req.user);
         next();
 
     } catch (error) {
-        return res.sendStatus(403);
+        return res.status(403).json({error: error.message});
     }
 
 }

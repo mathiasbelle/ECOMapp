@@ -2,7 +2,7 @@ const Product = require('../models/product-model');
 
 exports.authenticateProductOwner = async (req, res, next) => {
     const productId = req.params.id;
-    console.log(productId);
+    //console.log(productId);
     try {
         const product = await Product.findById(productId);
         //console.log(product);

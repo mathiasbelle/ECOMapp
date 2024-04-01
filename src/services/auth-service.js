@@ -25,24 +25,22 @@ function createToken(user) {
 exports.login = async (email, password) => {
     try {
         const user = await User.findOne({ email: email }).exec();
-        console.log(user);
-
-        if (!user || !bcrypt.compare(password, user.password)) {
+        let result = await bcrypt.compare(password, user.password);
+        if (!user || !result) {
             const error = new Error('Email or password incorrect.');
-            error.status = 401;
             throw error;
         } else {
             return createToken(user);
         }
     } catch (error) {
-        throw new Error('Error when logging in.');
+        throw new Error('Email or password incorrect.');
     }
     
 }
 
 exports.register = async (data) => {
     try {
-        const user = await userService.create(data);    
+        const user = await userService.createUser(data);    
         return createToken(user);
     } catch (error) {
         throw new Error('Could not create new user.');

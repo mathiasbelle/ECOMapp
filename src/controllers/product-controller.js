@@ -5,7 +5,7 @@ exports.createProduct = async (req, res, next) => {
     const result = validationResult(req);
     if (result.isEmpty()) {
         const data = matchedData(req);
-        console.log(data);
+        //console.log(data);
         try {
             const product = await productService.createProduct(data);
             res.send(product);
@@ -47,7 +47,7 @@ exports.updatePartialProduct = async (req, res, next) => {
         const id = req.params.id;
         const data = matchedData(req, {locations: ['body']});
         try {
-            const product = await productService.updatePartialProduct(id, data);
+            const product = await productService.updateProduct(id, data);
             res.send(product);
         } catch (error) {
             next(error);

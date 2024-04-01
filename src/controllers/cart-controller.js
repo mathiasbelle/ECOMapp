@@ -19,7 +19,6 @@ exports.createCart = async (req, res, next) => {
 
 exports.getCart = async (req, res, next) => {
     const id = req.user.id;
-    console.log(id);
     try {
         const cart = await cartService.getCart(id);
         res.json(cart);

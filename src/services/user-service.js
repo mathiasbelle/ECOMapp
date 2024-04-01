@@ -7,16 +7,21 @@ exports.createUser = async (data) => {
         throw new Error('User already exists.');
     }
     data.password = await bcrypt.hash(data.password, 10);
-    try {
+    try {   
         const newUser = new User({
             name: data.name,
             email: data.email,
             password: data.password
         });
-        console.log(newUser);
 
         await newUser.save();
-        return newUser;
+        return {
+            _id: newUser.id,
+            name: newUser.name,
+            email: newUser.email,
+            createdAt: newUser.createdAt,
+            updatedAt: newUser.updatedAt
+        };
     } catch (error) {
         throw new Error('Error when saving new user.');
     }
@@ -25,9 +30,11 @@ exports.createUser = async (data) => {
 };
 
 exports.getOneUser = async (id) => {
-    await this.exists();
     try {
         const user = await User.findById(id, '-password -__v');
+        if (!user) {
+            throw notFoundError('User does not exist.');
+        }
         return user;
     } catch (error) {
         throw new Error('Error when getting user');
@@ -47,10 +54,10 @@ exports.getAllUsers = async () => {
 };
 
 exports.updateUser = async (id, data) => {
-    //await this.exists(id);
     const updatableFields = ['name', 'email', 'password'];
     try {
         const user = await User.findById(id);
+        
         if (!user) {
             throw notFoundError('User does not exist.');
         }
@@ -61,7 +68,13 @@ exports.updateUser = async (id, data) => {
             }
         }
         await user.save();
-        return user;
+        return {
+            _id: user.id,
+            name: user.name,
+            email: user.email,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt
+        };
 
     } catch (error) {
         throw new Error('Error when updating user.');
@@ -69,27 +82,35 @@ exports.updateUser = async (id, data) => {
 };
 
 exports.updatePartialUser = async (id, data) => {
-    await this.exists(id);
     const updatableFields = ['name', 'email', 'password'];
-    let dataToUpdate = {};
-    for (let [key, value] of Object.entries(data)) {
-        if (value !== undefined && updatableFields.includes(key)) {
-            dataToUpdate[key] = value;
-        }
-    }
-    if (dataToUpdate.password !== undefined) {
-        dataToUpdate.password = await bcrypt.hash(dataToUpdate.password, 10);
-    }
     try {
-        const user = await User.findByIdAndUpdate(id, dataToUpdate, {new: true});
-        return user; 
+        const user = await User.findById(id);
+        if(!user) {
+            throw notFoundError('User does not exist.');
+        }
+        if (data.password !== undefined) {
+            data.password = await bcrypt.hash(data.password, 10);
+        }
+        for (let [key, value] of Object.entries(data)) {
+            if (value !== undefined && updatableFields.includes(key)) {
+                user[key] = value;
+            }
+        }
+        await user.save();
+        return {
+            _id: user.id,
+            name: user.name,
+            email: user.email,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt
+        }; 
     } catch (error) {
         throw new Error('Error when updating user.');
     }
 };
 
 exports.deleteUser = async (id) => {
-    if (await User.exists(id)) {
+    if (!await User.exists({_id: id})) {
         throw notFoundError('User not found.');
     } else {
         try {

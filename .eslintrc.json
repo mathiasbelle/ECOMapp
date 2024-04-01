@@ -3,12 +3,15 @@
         "browser": true,
         "node": true,
         "commonjs": true,
+        "jest": true,
         "es2021": true
+        
     },
     "extends": "eslint:recommended",
     "parserOptions": {
         "ecmaVersion": "latest"
     },
+    "plugins": ["jest"],
     "rules": {
         "quotes": ["warn", "single"]
     }
