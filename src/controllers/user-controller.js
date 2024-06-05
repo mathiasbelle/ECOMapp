@@ -6,6 +6,8 @@ exports.createUser = async (req, res, next) => {
     if ( result.isEmpty() ) {
         try {
             const data = matchedData(req);
+            data.file = req.file;
+            console.log(data);
             const user = await userService.createUser(data);
             res.json(user);
         } catch (error) {

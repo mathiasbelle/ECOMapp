@@ -23,6 +23,7 @@ exports.getCart = async (req, res, next) => {
         const cart = await cartService.getCart(id);
         res.json(cart);
     } catch (error) {
+        console.log(error);
         next(error);
     }
 

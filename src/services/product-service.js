@@ -32,15 +32,39 @@ exports.getOneProduct = async (id) => {
     
 }
 
-exports.getAllProducts = async () => {
-    try {
-        const product = await Product.find();
-        return product;
-    } catch (error) {
-        throw new Error('Error when getting products.')
-    }
 
+/**
+ * Generates a regular expression pattern from an array of words.
+ *
+ * @param {string[]} words - The array of words to generate the pattern from.
+ * @return {RegExp} - The generated regular expression pattern.
+ */
+function makeQueryRegex(words) {
+    let patternString = '^.*?\\b';
+
+    words.forEach(item => {
+        patternString += item + '\\b.*?';
+    });
+
+    patternString += '$';
+    return new RegExp(patternString, 'i');
 }
+
+// If there's a name, need to use it to filter the products
+exports.getAllProducts = async (name = '') => {
+    // console.log(name);
+    try {
+      const query = name.trim().length > 0
+        //? {name: new RegExp(name, 'i')}
+        ? {name: makeQueryRegex(name.split(' '))}
+        : {};
+  
+      const products = await Product.find(query);
+      return products;
+    } catch (error) {
+      throw new Error('Error when getting products.');
+    }
+  };
 
 exports.updateProduct = async (id, data) => {
     await this.exists(id);

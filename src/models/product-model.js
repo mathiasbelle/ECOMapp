@@ -3,24 +3,24 @@ const mongoose = require('mongoose');
 const productSchema = new mongoose.Schema({
     owner: {
         type: mongoose.Types.ObjectId,
-        require: true,
-        reference: 'User'
+        required: true,
+        ref: 'User'
     },
     name: {
         type: String,
-        require: true
+        required: true
     },
     price: {
         type: Number,
-        require: true
+        required: true
     },
     quantity: {
         type: Number,
-        require: true
+        required: true
     },
     category: {
         type: String,
-        require: true
+        required: true
     },
     description: {
         type: String

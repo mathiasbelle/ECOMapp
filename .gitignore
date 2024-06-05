@@ -2,3 +2,9 @@
 .env
 .env.test
 *.code-workspace
+
+*compose.yml
+Dockerfile
+.dockerignore
+
+storage

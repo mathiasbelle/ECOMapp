@@ -2,13 +2,16 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 
 const userSchema = new mongoose.Schema({
-    name: {
+    username: {
         type: String,
-        require: true
+        required: true,
+        unique: true,
+        trim: true,
+        lowercase: true
     },
     email: {
         type: String,
-        require: true,
+        required: true,
         unique: true,
         lowercase: true,
         validate: {
@@ -20,10 +23,21 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        require: true,
+        required: true,
         minLength: 6,
         trim: true,
-    }
+    },
+    role: {
+        type: String,
+        enum: ['admin', 'user', 'seller'],
+        default: 'user',
+        required: true
+    },
+    name: {
+        type: String,
+        required: true
+    },
+    refreshTokens: [String],
 }, {timestamps: true});
 
 

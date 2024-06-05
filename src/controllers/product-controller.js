@@ -33,12 +33,26 @@ exports.getOneProduct = async (req, res, next) => {
     }
 }
 
+
+// If there's a query, need to use it to filter the products
 exports.getAllProducts = async (req, res, next) => {
-    try {
-        res.send(await productService.getAllProducts());
-    } catch (error) {
-        next(error);
+    const result = validationResult(req);
+    if (result.isEmpty()) {
+        const name = req.query.name;
+        try {
+            const products = await productService.getAllProducts(name);
+            res.json(products);
+        } catch (error) {
+            next(error);
+        }
+    } else {
+        res.status(400).json({error: result.array({onlyFirstError: true})});
     }
+    // try {
+    //     res.send(await productService.getAllProducts());
+    // } catch (error) {
+    //     next(error);
+    // }
 }
 
 exports.updatePartialProduct = async (req, res, next) => {

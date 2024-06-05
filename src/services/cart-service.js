@@ -5,11 +5,11 @@ const notFoundError = require('../errors/not-found-error');
 exports.getCart = async (id) => {
     try {
         const cart = await Cart.findOne({owner: id});
-        if (cart && cart.products.length > 0) {
+        //if (cart && cart.products.length > 0) {
             return cart;
-        } else {
-            throw notFoundError('Cart not found');
-        }
+        // } else {
+        //     throw notFoundError('Cart not found');
+        // }
     } catch (error) {
         throw new Error('Error when getting cart');
     }

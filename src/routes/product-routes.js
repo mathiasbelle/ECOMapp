@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { body, param } = require('express-validator');
+const { body, param, query } = require('express-validator');
 
 const {authenticateToken} = require('../middleware/auth-middleware');
 const authenticateProductOwner = require('../middleware/product-owner-auth-middleware').authenticateProductOwner;
@@ -26,10 +26,9 @@ router.post(
 router.get(
     '/products/:id',
     param('id').trim().escape().isMongoId().withMessage('Invalid product id.'),
-    authenticateToken,
     getOneProduct
 );
-router.get('/products', authenticateToken, getAllProducts);
+router.get('/products', query('name').optional().trim().escape() , getAllProducts);
 router.put(
     '/products/:id',
     param('id', 'Invalid product id.').trim().escape().isMongoId(),

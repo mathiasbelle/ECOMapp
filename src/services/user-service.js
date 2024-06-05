@@ -1,5 +1,6 @@
 const notFoundError = require('../errors/not-found-error');
 const User = require('../models/user-model');
+const Product = require('../models/product-model');
 const bcrypt = require('bcrypt');
 
 exports.createUser = async (data) => {
@@ -9,6 +10,7 @@ exports.createUser = async (data) => {
     data.password = await bcrypt.hash(data.password, 10);
     try {   
         const newUser = new User({
+            username: data.username,
             name: data.name,
             email: data.email,
             password: data.password
@@ -16,13 +18,15 @@ exports.createUser = async (data) => {
 
         await newUser.save();
         return {
-            _id: newUser.id,
+            id: newUser.id,
+            username: newUser.username,
             name: newUser.name,
             email: newUser.email,
             createdAt: newUser.createdAt,
             updatedAt: newUser.updatedAt
         };
     } catch (error) {
+        console.error(error);
         throw new Error('Error when saving new user.');
     }
     
@@ -69,7 +73,7 @@ exports.updateUser = async (id, data) => {
         }
         await user.save();
         return {
-            _id: user.id,
+            id: user.id,
             name: user.name,
             email: user.email,
             createdAt: user.createdAt,
@@ -98,7 +102,7 @@ exports.updatePartialUser = async (id, data) => {
         }
         await user.save();
         return {
-            _id: user.id,
+            id: user.id,
             name: user.name,
             email: user.email,
             createdAt: user.createdAt,
@@ -114,6 +118,9 @@ exports.deleteUser = async (id) => {
         throw notFoundError('User not found.');
     } else {
         try {
+            const user = await User.findById(id);
+            console.log(user);
+            await Product.deleteMany({owner: user._id});
             await User.findByIdAndDelete(id);
             return true;
         } catch (error) {

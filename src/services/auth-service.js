@@ -3,23 +3,40 @@ const userService = require('./user-service');
 const bcrypt = require('bcrypt');
 const User = require('../models/user-model');
 
-function createToken(user) {
+function createAccessToken(user) {
     return {
         accessToken: jwt.sign(
             {
                 id: user.id,
-                name: user.name,
+                username: user.username,
                 email: user.email
             },
                 process.env.JWT_SECRET,
             {
-                expiresIn: '2 days',
+                expiresIn: '10s',
                 subject: String(user.id),
                 issuer: 'login',
                 audience: 'users'
             },
         ),
     };
+}
+
+function createRefreshToken(user) {
+    return jwt.sign(
+        {
+            id: user.id,
+            username: user.username,
+            email: user.email
+        },
+        process.env.REFRESH_TOKEN_SECRET,
+        {
+            expiresIn: '7d',
+            subject: String(user.id),
+            issuer: 'login',
+            audience: 'users'
+        }
+    );
 }
 
 exports.login = async (email, password) => {
@@ -30,7 +47,11 @@ exports.login = async (email, password) => {
             const error = new Error('Email or password incorrect.');
             throw error;
         } else {
-            return createToken(user);
+            const accessToken = createAccessToken(user);
+            const refreshToken = createRefreshToken(user);
+            user.refreshTokens.push(refreshToken);
+            await user.save();
+            return {accessToken, refreshToken};
         }
     } catch (error) {
         throw new Error('Email or password incorrect.');
@@ -40,9 +61,43 @@ exports.login = async (email, password) => {
 
 exports.register = async (data) => {
     try {
-        const user = await userService.createUser(data);    
-        return createToken(user);
+        const newUser = await userService.createUser(data); 
+        const accessToken = createAccessToken(newUser);
+        const refreshToken = createRefreshToken(newUser);
+        const user = await User.findById(newUser.id).exec();
+        user.refreshTokens.push(refreshToken);
+        await user.save();
+        return {accessToken, refreshToken};
     } catch (error) {
-        throw new Error('Could not create new user.');
+        console.error(error.message);
+        throw new Error(error.message);
+    }
+}
+
+exports.refresh = (token) => {
+    //console.log(`REFRESH TOKEN SEND FROM CLIENT: ${token}`);
+    try {
+        const result = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, {
+            audience: 'users',
+            issuer: 'login'
+        });
+        //console.log(result);
+        return createAccessToken(result);
+    } catch (error) {
+        throw new Error('Unauthorized');
+    }
+}
+
+exports.logout = async (email, refreshToken) => {
+    try {
+        const user = await User.findOne({email: email}).exec();
+        let index = user.refreshTokens.indexOf(refreshToken);
+        if (index !== -1) {
+            user.refreshTokens.splice(index, 1);
+            await user.save();
+        }
+        return true;
+    } catch (error) {
+        console.error(error);
     }
 }
