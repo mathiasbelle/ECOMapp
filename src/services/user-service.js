@@ -4,16 +4,27 @@ const Product = require('../models/product-model');
 const bcrypt = require('bcrypt');
 
 exports.createUser = async (data) => {
-    if (await User.exists({email: data.email})) {
-        throw new Error('User already exists.');
-    }
-    data.password = await bcrypt.hash(data.password, 10);
-    try {   
+    
+    try {
+        const [emailExists, usernameExists] = await Promise.all([
+            User.exists({ email: data.email }),
+            User.exists({ username: data.username })
+        ]);
+
+        if (emailExists) {
+            throw new Error('Email is already in use.');
+        }
+        if (usernameExists) {
+            throw new Error('Username is already in use.');
+        }
+        
+        data.password = await bcrypt.hash(data.password, 10);
         const newUser = new User({
             username: data.username,
             name: data.name,
             email: data.email,
-            password: data.password
+            password: data.password,
+            role: data.role
         });
 
         await newUser.save();
@@ -27,7 +38,8 @@ exports.createUser = async (data) => {
         };
     } catch (error) {
         console.error(error);
-        throw new Error('Error when saving new user.');
+        
+        throw new Error(error.message || 'Error when saving new user.');
     }
     
 
@@ -35,7 +47,7 @@ exports.createUser = async (data) => {
 
 exports.getOneUser = async (id) => {
     try {
-        const user = await User.findById(id, '-password -__v');
+        const user = await User.findById(id, '-password -__v -refreshTokens').lean();
         if (!user) {
             throw notFoundError('User does not exist.');
         }

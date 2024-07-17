@@ -12,12 +12,14 @@ const cors = require('cors');
 const corsOptions = require('./config/corsOptions');
 const cookieParser = require('cookie-parser');
 const credentials = require('./middleware/credentials');
+const path = require('path');
 
 const app = express();
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
-
+console.log(`Public path: ${path.join(__dirname, '..', 'public')}`);
+app.use('/storage', express.static(path.join(__dirname, '..', 'storage')));
 app.use(credentials);
 app.use(cors(corsOptions));
 
@@ -31,5 +33,7 @@ app.use('/api', productRoutes);
 app.use('/api', cartRoutes);
 
 app.use(errorHandler);
+
+
 
 module.exports = app;

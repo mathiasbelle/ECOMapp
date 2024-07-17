@@ -1,3 +1,4 @@
+const { getProductsByUser } = require('../services/product-service');
 const userService = require('../services/user-service')
 const { matchedData, validationResult } = require('express-validator');
 
@@ -11,6 +12,9 @@ exports.createUser = async (req, res, next) => {
             const user = await userService.createUser(data);
             res.json(user);
         } catch (error) {
+            if (error.message === 'Email is already in use.' || error.message === 'Username is already in use.') {
+                error.status = 409;
+            }
             next(error);
         }
     } else {
@@ -24,6 +28,11 @@ exports.getOneUser = async (req, res, next) => {
         const id = req.params.id;
         try {
             const result = await userService.getOneUser(id);
+            if (req.query.products === 'true') {
+                const products = await getProductsByUser(id);
+                result.products = products;
+            }
+            console.log(result);
             res.json(result);
         } catch (error) {
             next(error);

@@ -2,10 +2,13 @@ const jwt = require('jsonwebtoken');
 const userService = require('./user-service');
 const bcrypt = require('bcrypt');
 const User = require('../models/user-model');
+const notFoundError = require('../errors/not-found-error');
+const transporter = require('../config/nodemailerConfig');
+const pug = require('pug');
+const path = require('path');
 
 function createAccessToken(user) {
-    return {
-        accessToken: jwt.sign(
+    return jwt.sign(
             {
                 id: user.id,
                 username: user.username,
@@ -13,13 +16,12 @@ function createAccessToken(user) {
             },
                 process.env.JWT_SECRET,
             {
-                expiresIn: '10s',
+                expiresIn: '1h',
                 subject: String(user.id),
                 issuer: 'login',
                 audience: 'users'
-            },
-        ),
-    };
+            }
+        );
 }
 
 function createRefreshToken(user) {
@@ -39,6 +41,23 @@ function createRefreshToken(user) {
     );
 }
 
+function createForgetPasswordToken(user) {
+    return jwt.sign(
+        {
+            id: user.id,
+            username: user.username,
+            email: user.email
+        },
+        process.env.FORGET_PASSWORD_TOKEN_SECRET,
+        {
+            expiresIn: '1h',
+            subject: String(user.id),
+            issuer: 'forgetPassword',
+            audience: 'users'
+        }
+    );
+}
+
 exports.login = async (email, password) => {
     try {
         const user = await User.findOne({ email: email }).exec();
@@ -51,7 +70,7 @@ exports.login = async (email, password) => {
             const refreshToken = createRefreshToken(user);
             user.refreshTokens.push(refreshToken);
             await user.save();
-            return {accessToken, refreshToken};
+            return {accessToken, refreshToken, role: user.role};
         }
     } catch (error) {
         throw new Error('Email or password incorrect.');
@@ -67,7 +86,7 @@ exports.register = async (data) => {
         const user = await User.findById(newUser.id).exec();
         user.refreshTokens.push(refreshToken);
         await user.save();
-        return {accessToken, refreshToken};
+        return {accessToken, refreshToken, role: user.role};
     } catch (error) {
         console.error(error.message);
         throw new Error(error.message);
@@ -99,5 +118,44 @@ exports.logout = async (email, refreshToken) => {
         return true;
     } catch (error) {
         console.error(error);
+    }
+}
+
+exports.forgetPassword = async (email) => {
+    const user = await User.findOne({ email: email }).exec();
+    if (!user) {
+        throw notFoundError('User does not exist.');
+    }
+    const token = createForgetPasswordToken(user);
+    const html = pug.renderFile(path.join(__dirname, '../templates/forget.pug'), {token});
+    const emailContent = {
+        from: `"ECOM Company" <${process.env.MAIL_USER}>`,
+        to: user.email,
+        subject: 'Reset Your Email',
+        html
+    };
+    try {
+        const message = await transporter.sendMail(emailContent);
+
+        console.log(message.info);    
+    } catch (error) {
+        console.error(error);
+        throw new Error(error.message || 'Error when sending email.');   
+    }
+};
+
+exports.resetPassword = async (token, password) => {
+    try {
+        const result = jwt.verify(token, process.env.FORGET_PASSWORD_TOKEN_SECRET, {
+            audience: 'users',
+            issuer: 'forgetPassword'
+        });
+        const user = await User.findById(result.id).exec();
+        user.password = await bcrypt.hash(password, 10);
+        await user.save();
+        return true;
+    } catch (error) {
+        console.error(error);
+        throw new Error(error.message || 'Error when resetting password.');
     }
 }

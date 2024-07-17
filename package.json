@@ -4,6 +4,7 @@
   "description": "An E-commerce app",
   "main": "index.js",
   "scripts": {
+    "seed": "node ./src/scripts/seed-db.js",
     "dev": "nodemon ./src/index.js",
     "debug": "nodemon --inspect ./src/index.js",
     "test": "cross-env NODE_ENV=test jest --detectOpenHandles"
@@ -21,9 +22,12 @@
     "mongoose": "^8.0.2",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.14",
+    "pug": "^3.0.3",
     "validator": "^13.11.0"
   },
   "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
     "cross-env": "^7.0.3",
     "eslint": "^8.56.0",
     "eslint-plugin-jest": "^27.9.0",

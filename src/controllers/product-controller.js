@@ -5,6 +5,9 @@ exports.createProduct = async (req, res, next) => {
     const result = validationResult(req);
     if (result.isEmpty()) {
         const data = matchedData(req);
+        data.owner = req.user._id;
+        data.files = req.files;
+        console.log(data.file);
         //console.log(data);
         try {
             const product = await productService.createProduct(data);
@@ -54,6 +57,16 @@ exports.getAllProducts = async (req, res, next) => {
     //     next(error);
     // }
 }
+
+exports.getSellerProducts = async (req, res, next) => {
+    const id = req.user._id;
+    try {
+        const products = await productService.getProductsByUser(id);
+        res.json(products);
+    } catch (error) {
+        next(error);
+    }
+};
 
 exports.updatePartialProduct = async (req, res, next) => {
     const result = validationResult(req);

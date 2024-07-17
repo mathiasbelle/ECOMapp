@@ -2,9 +2,19 @@ const Cart = require('../models/cart-model');
 const Product = require('../models/product-model');
 const notFoundError = require('../errors/not-found-error');
 
+
+const toFixed = (n, fixed) => Number(`${n}`.match(new RegExp(`^-?\\d+(?:.\\d{0,${fixed}})?`))[0]);
+
+
 exports.getCart = async (id) => {
     try {
-        const cart = await Cart.findOne({owner: id});
+        const cart = await Cart.findOne({owner: id}).lean();
+        if (cart && cart.products.length > 0) {
+            for (let i = 0; i < cart.products.length; i++) {
+                const product = await Product.findById(cart.products[i].productId).lean();
+                cart.products[i].name = product.name;
+            }
+        }
         //if (cart && cart.products.length > 0) {
             return cart;
         // } else {
@@ -24,10 +34,10 @@ exports.createCart = async (data) => {
         if (product.quantity < data.quantity) {
             throw new Error('Stock is not enough.');
         }
-        let cart = await Cart.findOne({ owner: data.user.id });
+        let cart = await Cart.findOne({ owner: data.user._id });
         if (!cart) {
             const newCart = new Cart({
-                owner: data.user.id,
+                owner: data.user._id,
                 products: [{
                     productId: data.productId,
                     quantity: data.quantity,
@@ -67,7 +77,7 @@ exports.updateCart = async (data) => {
             throw new Error('Product is sold out.');
         }
 
-        const cart = await Cart.findOne({owner: data.user.id});
+        const cart = await Cart.findOne({owner: data.user._id});
 
         if (!cart) {
             return await this.createCart(data);
@@ -84,7 +94,7 @@ exports.updateCart = async (data) => {
                 price: product.price
             });
         }
-        cart.bill += product.price * data.quantity;
+        cart.bill += toFixed(product.price * data.quantity, 2);
         await cart.save();
         product.quantity -= data.quantity;
         await product.save();

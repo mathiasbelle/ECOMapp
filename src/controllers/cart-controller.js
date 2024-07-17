@@ -18,7 +18,7 @@ exports.createCart = async (req, res, next) => {
 }
 
 exports.getCart = async (req, res, next) => {
-    const id = req.user.id;
+    const id = req.user._id;
     try {
         const cart = await cartService.getCart(id);
         res.json(cart);
@@ -47,7 +47,7 @@ exports.updateCart = async (req, res, next) => {
 
 exports.deleteCart = async (req, res, next) => {
         try {
-            await cartService.deleteCart(req.user.id);
+            await cartService.deleteCart(req.user._id);
             return res.sendStatus(204);
         } catch (error) {
             next(error);

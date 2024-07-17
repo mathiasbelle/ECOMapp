@@ -8,7 +8,7 @@ const {
     updatePartialUser,
     deleteUser,
 } = require('../controllers/user-controller');
-const {body, param} = require('express-validator');
+const {body, param, query} = require('express-validator');
 const multer = require('multer');
 const { mkdirSync } = require('fs');
 
@@ -46,6 +46,7 @@ router.get('/users', getAllUsers);
 router.get(
     '/users/:id',
     param('id', 'Invalid user id.').isMongoId(),
+    query('products').optional().isBoolean(),
     getOneUser
 );
 
